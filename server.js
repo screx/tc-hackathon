@@ -5,7 +5,7 @@ const haikudos = require('haikudos');
 //  { secure: true, reconnect: true, rejectUnauthorized: false });
 //const fetch = require('node-fetch');
 const {emoteArray, generateEmotes} = require('./utils/generateEmotes');
-const {parsePoll} = require('./utils/parse');
+const {populateEmotes, populateOptions, parsePoll} = require('./utils/parse');
 
 var currentPollArr = [];
 
@@ -96,16 +96,26 @@ function onMessageHandler (target, context, msg, self) {
   if (context.username == 'stephaniekdoan' && msg.substring(0, 5)=='#poll') {
     //INSTANTIATES POLL OBJECT
     parsePoll(msg).then(function(parsedPoll){
+      console.log('PARSED POLL:', parsedPoll);
       var newPoll = {
         question : parsedPoll.question,
-        options : parsedPoll.options
+        options : parsedPoll.options, 
+        open : true
       }
       //STARTS TIME?! INITIATES?! SENDS AJAX REQUESTS?!
-      console.log('EMOTES:', generateEmotes(returnedObj.options.length));
-    });
+      return newPoll;
+    }).then(function(newPoll){
+      currentPollArr.push(newPoll);
+      console.log('NEW ARRAY:', currentPollArr[0]);
+    })
   } else if (emoteArray.includes(msg)) {
-    //It is an emote - will VOTE
-
+    if (currentPollArr.length>0 && currentPollArr[0].open) { //poll is open
+      var targetEmote = currentPollArr[0].options.find(op => op.emoteName==msg);
+      if (targetEmote){
+        targetEmote.emoteTally++;
+      }
+      console.log('TALLY UPDATED', currentPollArr[0]);
+    }
   }
 
   // This isn't a command since it has no prefix:
