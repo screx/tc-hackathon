@@ -121,7 +121,7 @@ function onMessageHandler (target, context, msg, self) {
       currentPollArr.push(newPoll);
       setTimeout(()=>{
         closePoll();
-      }, 10000);
+      }, 15000);
       console.log('NEW ARRAY:', currentPollArr[0]);
     })
   } else if (currentPollArr[0] && emoteArray.includes(msg) && !currentPollArr[0].voters.has(context.username)) {
