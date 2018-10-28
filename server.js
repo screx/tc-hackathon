@@ -7,22 +7,11 @@ var port = new SerialPort('/dev/cu.usbmodem1421');
 //const socket = io.connect('wss://pubsub-edge.twitch.tv', 
 //  { secure: true, reconnect: true, rejectUnauthorized: false });
 //const fetch = require('node-fetch');
-const {emoteArray, generateEmotes} = require('./utils/generateEmotes');
-const {populateEmotes, populateOptions, parsePoll} = require('./utils/parse');
+const {emoteArray, redEmotes, greenEmotes, blueEmotes, yellowEmotes, populateOptions, parsePoll} = require('./utils/parse');
 
 var currentPollArr = [];
 
-/*
 
-SHROUD's ID:  37402112
-
-curl -H 'Accept: application/vnd.twitchtv.v5+json' \
--H 'Client-ID: soiv4rk6dw9sr1ih6o77xwu1qcl6kq' \
--X GET https://api.twitch.tv/kraken/users?login=shroud
-
-//CLIENT ID:    soiv4rk6dw9sr1ih6o77xwu1qcl6kq
-
-*/
 
 
 // Valid commands start with:
@@ -35,12 +24,8 @@ let opts = {
   },
   channels: [
     'stephaniekdoan'
-    //'shroud'
   ]
 }
-
-// These are the commands the bot knows (defined below):
-//let knownCommands = { echo, haiku }
 
 // Create a client with our options:
 let client = new tmi.client(opts)
@@ -63,6 +48,58 @@ function sendMessage (target, context, message) {
   }
 }
 
+function finish(color) {
+  // a is rainbow strobe
+  // b is red
+  // c is green
+  // d is blue
+  // e is yellow 
+  if(color=='red') {
+    port.write('b', function(err) {
+      if (err) {
+        return console.log('Error on write: ', err.message);
+      } console.log('RED WON!');
+    });
+  }else if (color=='green'){
+    port.write('c', function(err) {
+      if (err) {
+        return console.log('Error on write: ', err.message);
+      } console.log('GREEN WON!');
+    });
+  }else if (color=='blue'){
+    console.log('Flash BLUE');
+    port.write('d', function(err) {
+      if (err) {
+        return console.log('Error on write: ', err.message);
+      } console.log('BLUE WON!');
+    });
+  }else if (color=='yellow'){
+    port.write('e', function(err) {
+      if (err) {
+        return console.log('Error on write: ', err.message);
+      } console.log('YELLOW WON!');
+    });
+  }
+  currentPollArr = [];
+  console.log('CLOSE ARRAY:', currentPollArr);
+}
+
+async function closePoll() {
+  var winningColor = currentPollArr[0].options[0].emoteColor;
+  var winningTally = currentPollArr[0].options[0].emoteTally;
+  let promise = new Promise((resolve, reject) => {
+    for (var i=1; i<currentPollArr[0].options.length; i++) {
+      if (currentPollArr[0].options[i].emoteTally>winningTally) {
+        winningColor = currentPollArr[0].options[i].emoteColor;
+        winningTally = currentPollArr[0].options[i].emoteTally;
+      }
+    }
+    setTimeout(() => resolve(winningColor), 500)
+  });
+  var colorToFlash = await promise;
+  return finish(colorToFlash);
+}
+
 // Called every time a message comes in:
 function onMessageHandler (target, context, msg, self) {
   if (self) { return } // Ignore messages from the bot
@@ -82,14 +119,39 @@ function onMessageHandler (target, context, msg, self) {
       return newPoll;
     }).then(function(newPoll){
       currentPollArr.push(newPoll);
+      setTimeout(()=>{
+        closePoll();
+      }, 10000);
       console.log('NEW ARRAY:', currentPollArr[0]);
     })
-  } else if (emoteArray.includes(msg) && !currentPollArr[0].voters.has(context.username)) {
+  } else if (currentPollArr[0] && emoteArray.includes(msg) && !currentPollArr[0].voters.has(context.username)) {
     if (currentPollArr.length>0 && currentPollArr[0].open) { //poll is open
-      var targetEmote = currentPollArr[0].options.find(op => op.emoteName==msg);
-      if (targetEmote){
-        targetEmote.emoteTally++;
-        currentPollArr[0].voters.add(context.username);
+      var color;
+      if (redEmotes.includes(msg)) {
+        color='red';
+        var targetEmote = currentPollArr[0].options.find(op => op.emoteColor==color);
+        if (targetEmote) {
+          targetEmote.emoteTally++;
+        }
+      } else if (greenEmotes.includes(msg)) {
+        color='green';
+        var targetEmote = currentPollArr[0].options.find(op => op.emoteColor==color);
+        if (targetEmote) {
+          targetEmote.emoteTally++;
+        }
+      } else if (blueEmotes.includes(msg)) {
+        console.log('BLUE!!!');
+        color='blue';
+        var targetEmote = currentPollArr[0].options.find(op => op.emoteColor==color);
+        if (targetEmote) {
+          targetEmote.emoteTally++;
+        }
+      } else if (yellowEmotes.includes(msg)) {
+        color='yellow';
+        var targetEmote = currentPollArr[0].options.find(op => op.emoteColor==color);
+        if (targetEmote) {
+          targetEmote.emoteTally++;
+        }
       }
       console.log('TALLY UPDATED', currentPollArr[0]);
     }
@@ -108,7 +170,6 @@ function onMessageHandler (target, context, msg, self) {
     return
   }
 }
-
  
 // Open errors will be emitted as an error event
 port.on('error', function(err) {
@@ -125,3 +186,15 @@ function onDisconnectedHandler (reason) {
   console.log(`Disconnected: ${reason}`)
   process.exit(1)
 }
+
+
+
+/*
+SHROUD's ID:  37402112
+
+curl -H 'Accept: application/vnd.twitchtv.v5+json' \
+-H 'Client-ID: soiv4rk6dw9sr1ih6o77xwu1qcl6kq' \
+-X GET https://api.twitch.tv/kraken/users?login=shroud
+
+//CLIENT ID:    soiv4rk6dw9sr1ih6o77xwu1qcl6kq
+*/
