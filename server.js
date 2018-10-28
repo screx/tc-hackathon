@@ -2,7 +2,7 @@ const tmi = require('tmi.js');
 const haikudos = require('haikudos');
 var SerialPort = require('serialport');
 // change this to connies port path
-var port = new SerialPort('/dev/cu.usbmodem1441');
+var port = new SerialPort('/dev/cu.usbmodem1421');
 //const io = require('socket.io-client');
 //const socket = io.connect('wss://pubsub-edge.twitch.tv', 
 //  { secure: true, reconnect: true, rejectUnauthorized: false });
@@ -53,6 +53,16 @@ client.on('disconnected', onDisconnectedHandler)
 // Connect to Twitch:
 client.connect()
 
+
+// Helper function to send the correct type of message:
+function sendMessage (target, context, message) {
+  if (context['message-type'] === 'whisper') {
+    client.whisper(target, message)
+  } else {
+    client.say(target, message)
+  }
+}
+
 // Called every time a message comes in:
 function onMessageHandler (target, context, msg, self) {
   if (self) { return } // Ignore messages from the bot
@@ -69,7 +79,6 @@ function onMessageHandler (target, context, msg, self) {
         open : true,
         voters : voters
       }
-      //STARTS TIME?! INITIATES?! SENDS AJAX REQUESTS?!
       return newPoll;
     }).then(function(newPoll){
       currentPollArr.push(newPoll);
@@ -84,6 +93,13 @@ function onMessageHandler (target, context, msg, self) {
       }
       console.log('TALLY UPDATED', currentPollArr[0]);
     }
+  } else if (msg.includes('subscribe')) {
+    port.write('a', function(err) {
+      if (err) {
+        return console.log('Error on write: ', err.message);
+      }
+      console.log('SUBSCRIPTION');
+    });
   }
 
   // This isn't a command since it has no prefix:
@@ -91,27 +107,13 @@ function onMessageHandler (target, context, msg, self) {
     console.log(`[${target} (${context['message-type']})] ${context.username}: ${msg}`)
     return
   }
-
-  /*
-  // Split the message into individual words:
-  const parse = msg.slice(1).split(' ')
-  // The command name is the first (0th) one:
-  const commandName = parse[0]
-  // The rest (if any) are the parameters:
-  const params = parse.splice(1)
-
-  // If the command is known, let's execute it:
-  if (commandName in knownCommands) {
-    // Retrieve the function by its name:
-    const command = knownCommands[commandName]
-    // Then call the command with parameters:
-    command(target, context, params)
-    console.log(`* Executed ${commandName} command for ${context.username}`)
-  } else {
-    console.log(`* Unknown command ${commandName} from ${context.username}`)
-  }
-  */
 }
+
+ 
+// Open errors will be emitted as an error event
+port.on('error', function(err) {
+  console.log('Error: ', err.message);
+})
 
 // Called every time the bot connects to Twitch chat:
 function onConnectedHandler (addr, port) {
@@ -122,53 +124,4 @@ function onConnectedHandler (addr, port) {
 function onDisconnectedHandler (reason) {
   console.log(`Disconnected: ${reason}`)
   process.exit(1)
-}
-
-
-// var ws;
-// ws = new WebSocket('wss://pubsub-edge.twitch.tv');
-
-// ws.onopen = function(event) {
-//     $('.ws-output').append('INFO: Socket Opened\n');
-//     heartbeat();
-//     heartbeatHandle = setInterval(heartbeat, heartbeatInterval);
-// };
-
-// fetch('https://api.twitch.tv/helix/users?login=shroud&client-id=soiv4rk6dw9sr1ih6o77xwu1qcl6kq')
-//     .then(res => res.text())
-//     .then(body => console.log('FETCH:', body));
-
-// socket.on('connect', function(){
-//   try {
-//       console.log('* Socket opened');
-//       //socket.emit('configure', {email:myemail, deviceid:device_id});
-
-//   } catch(e) {
-//     console.log(e);
-//   }
-// });
-
-// socket.on('event', function(data){
-//     console.log('* Socket event!');
-// });
-// socket.on('disconnect', function(){
-//     console.log('* Socket closed :(');
-// });
-// socket.on("error", console.error);
-
-// Function called when the "echo" command is issued:
-function echo (target, context, params) {
-  // If there's something to echo:
-  if (params.length) {
-    // Join the params into a string:
-    var msg = params.join(' ')
-    // Interrupt attempted slash and dot commands:
-    if (msg.charAt(0) == '/' || msg.charAt(0) == '.') {
-      msg = 'Nice try...' 
-    }
-    // Send it back to the correct place:
-    sendMessage(target, context, msg)
-  } else { // Nothing to echo
-    console.log(`* Nothing to echo`)
-  }
 }
