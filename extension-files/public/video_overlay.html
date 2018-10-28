@@ -54,13 +54,24 @@
          }
  
     </style>
+
+    <script>
+        function changeOverlay() {
+            ("#flashing-subscriber").addClass("animate-me");
+            sleep(5000);
+            ("#flashing-subscriber").removeClass("animate-me");
+        }
+    </script>
     <div id="twitch-container">
-        <div id="flashing-subscriber">
+        <div id="flashing-subscriber" class="animate-me">
 
         <!--in case we want to bring back the list stuf-->
 
-        <!--        <div id="question" style="margin: 265px 0 0 325px; position: absolute; float: right"> [Question goes here]
-                    <div id="answers">
+        <div id="question" style="margin: 300px 0 0 380px; position: absolute; float: right">
+         Question:
+         <br>Laurel or Yanny?
+         <br>Answer in chat right now!
+                   <!-- <div id="answers">
                         Type your response in the chat
                         <ul>
                             <li id="option-1">A sdsdsd</li>
@@ -69,8 +80,8 @@
                             <li id="option-4">D fdffdfd</li>
                         </ul>
                     </div>
-                </div>
-        </div>-->
+                </div>-->
+        </div>
     </div>
 
 </body>
