@@ -17,5 +17,6 @@ var generateEmotes = function(numOptions){
 }
 
 module.exports = {
+    emoteArray,
     generateEmotes
 }

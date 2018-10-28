@@ -4,53 +4,18 @@ const haikudos = require('haikudos');
 //const socket = io.connect('wss://pubsub-edge.twitch.tv', 
 //  { secure: true, reconnect: true, rejectUnauthorized: false });
 //const fetch = require('node-fetch');
-const {generateEmotes} = require('./generateEmotes');
+const {emoteArray, generateEmotes} = require('./utils/generateEmotes');
+const {parsePoll} = require('./utils/parse');
 
-console.log('EMOTES:', generateEmotes(8));
-
-// var ws;
-// ws = new WebSocket('wss://pubsub-edge.twitch.tv');
-
-// ws.onopen = function(event) {
-//     $('.ws-output').append('INFO: Socket Opened\n');
-//     heartbeat();
-//     heartbeatHandle = setInterval(heartbeat, heartbeatInterval);
-// };
-
-// fetch('https://api.twitch.tv/helix/users?login=shroud&client-id=soiv4rk6dw9sr1ih6o77xwu1qcl6kq')
-//     .then(res => res.text())
-//     .then(body => console.log('FETCH:', body));
-
-// socket.on('connect', function(){
-//   try {
-//       console.log('* Socket opened');
-//       //socket.emit('configure', {email:myemail, deviceid:device_id});
-
-//   } catch(e) {
-//     console.log(e);
-//   }
-// });
-
-// socket.on('event', function(data){
-//     console.log('* Socket event!');
-// });
-// socket.on('disconnect', function(){
-//     console.log('* Socket closed :(');
-// });
-// socket.on("error", console.error);
-
+var currentPollArr = [];
 
 /*
 
-//SHROUD's ID:  37402112
+SHROUD's ID:  37402112
 
 curl -H 'Accept: application/vnd.twitchtv.v5+json' \
 -H 'Client-ID: soiv4rk6dw9sr1ih6o77xwu1qcl6kq' \
 -X GET https://api.twitch.tv/kraken/users?login=shroud
-
-
-curl -H 'Authorization: Bearer cfabdegwdoklmawdzdo98xt2fo512y' \
--X GET 'https://api.twitch.tv/helix/users?id=44322889'
 
 //CLIENT ID:    soiv4rk6dw9sr1ih6o77xwu1qcl6kq
 
@@ -129,8 +94,18 @@ function onMessageHandler (target, context, msg, self) {
 
   //Handle streamer initiated poll
   if (context.username == 'stephaniekdoan' && msg.substring(0, 5)=='#poll') {
-    console.log('ISSA POLL!!!');
-    //calls function to parse poll
+    //INSTANTIATES POLL OBJECT
+    parsePoll(msg).then(function(parsedPoll){
+      var newPoll = {
+        question : parsedPoll.question,
+        options : parsedPoll.options
+      }
+      //STARTS TIME?! INITIATES?! SENDS AJAX REQUESTS?!
+      console.log('EMOTES:', generateEmotes(returnedObj.options.length));
+    });
+  } else if (emoteArray.includes(msg)) {
+    //It is an emote - will VOTE
+
   }
 
   // This isn't a command since it has no prefix:
@@ -170,4 +145,36 @@ function onDisconnectedHandler (reason) {
   console.log(`Disconnected: ${reason}`)
   process.exit(1)
 }
+
+
+// var ws;
+// ws = new WebSocket('wss://pubsub-edge.twitch.tv');
+
+// ws.onopen = function(event) {
+//     $('.ws-output').append('INFO: Socket Opened\n');
+//     heartbeat();
+//     heartbeatHandle = setInterval(heartbeat, heartbeatInterval);
+// };
+
+// fetch('https://api.twitch.tv/helix/users?login=shroud&client-id=soiv4rk6dw9sr1ih6o77xwu1qcl6kq')
+//     .then(res => res.text())
+//     .then(body => console.log('FETCH:', body));
+
+// socket.on('connect', function(){
+//   try {
+//       console.log('* Socket opened');
+//       //socket.emit('configure', {email:myemail, deviceid:device_id});
+
+//   } catch(e) {
+//     console.log(e);
+//   }
+// });
+
+// socket.on('event', function(data){
+//     console.log('* Socket event!');
+// });
+// socket.on('disconnect', function(){
+//     console.log('* Socket closed :(');
+// });
+// socket.on("error", console.error);
 
