@@ -13,3 +13,8 @@ port.on('error', function(err) {
   console.log('Error: ', err.message);
 })
 
+// a is rainbow strobe
+// b is red
+// c is green
+// d is blue
+// e is yellow
