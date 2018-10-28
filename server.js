@@ -37,45 +37,7 @@ let opts = {
 }
 
 // These are the commands the bot knows (defined below):
-let knownCommands = { echo, haiku }
-
-// Function called when the "echo" command is issued:
-function echo (target, context, params) {
-  // If there's something to echo:
-  if (params.length) {
-    // Join the params into a string:
-    var msg = params.join(' ')
-    // Interrupt attempted slash and dot commands:
-    if (msg.charAt(0) == '/' || msg.charAt(0) == '.') {
-      msg = 'Nice try...' 
-    }
-    // Send it back to the correct place:
-    sendMessage(target, context, msg)
-  } else { // Nothing to echo
-    console.log(`* Nothing to echo`)
-  }
-}
-
-// Function called when the "haiku" command is issued:
-function haiku (target, context) {
-  // Generate a new haiku:
-  haikudos((newHaiku) => {
-    // Split it line-by-line:
-    newHaiku.split('\n').forEach((h) => {
-    // Send each line separately:
-    sendMessage(target, context, h)
-    })
-  })
-}
-
-// Helper function to send the correct type of message:
-function sendMessage (target, context, message) {
-  if (context['message-type'] === 'whisper') {
-    client.whisper(target, message)
-  } else {
-    client.say(target, message)
-  }
-}
+//let knownCommands = { echo, haiku }
 
 // Create a client with our options:
 let client = new tmi.client(opts)
@@ -97,10 +59,12 @@ function onMessageHandler (target, context, msg, self) {
     //INSTANTIATES POLL OBJECT
     parsePoll(msg).then(function(parsedPoll){
       console.log('PARSED POLL:', parsedPoll);
+      var voters = new Set();
       var newPoll = {
         question : parsedPoll.question,
         options : parsedPoll.options, 
-        open : true
+        open : true,
+        voters : voters
       }
       //STARTS TIME?! INITIATES?! SENDS AJAX REQUESTS?!
       return newPoll;
@@ -108,11 +72,12 @@ function onMessageHandler (target, context, msg, self) {
       currentPollArr.push(newPoll);
       console.log('NEW ARRAY:', currentPollArr[0]);
     })
-  } else if (emoteArray.includes(msg)) {
+  } else if (emoteArray.includes(msg) && !currentPollArr[0].voters.has(context.username)) {
     if (currentPollArr.length>0 && currentPollArr[0].open) { //poll is open
       var targetEmote = currentPollArr[0].options.find(op => op.emoteName==msg);
       if (targetEmote){
         targetEmote.emoteTally++;
+        currentPollArr[0].voters.add(context.username);
       }
       console.log('TALLY UPDATED', currentPollArr[0]);
     }
@@ -188,3 +153,19 @@ function onDisconnectedHandler (reason) {
 // });
 // socket.on("error", console.error);
 
+// Function called when the "echo" command is issued:
+function echo (target, context, params) {
+  // If there's something to echo:
+  if (params.length) {
+    // Join the params into a string:
+    var msg = params.join(' ')
+    // Interrupt attempted slash and dot commands:
+    if (msg.charAt(0) == '/' || msg.charAt(0) == '.') {
+      msg = 'Nice try...' 
+    }
+    // Send it back to the correct place:
+    sendMessage(target, context, msg)
+  } else { // Nothing to echo
+    console.log(`* Nothing to echo`)
+  }
+}
