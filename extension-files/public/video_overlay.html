@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Viewer Page</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <div id="app" class="full-height"></div>
+    <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+    <!-- TODO:  remove the following script tag before submitting to Twitch for testing or production. -->
+    <script src="https://localhost.rig.twitch.tv:3000/twitch-ext.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+    <script src="viewer.js" type="text/javascript"></script>
+
+    <style>
+        #flashing-subscriber{
+            height: 480px;
+            width: 640px;
+            background-color: #f9f9f9;
+            opacity: 25%;
+        }
+
+        .animate-me {
+            -webkit-animation: bgcolorchange 4s infinite; /* Chrome, Safari, Opera */ 
+            animation: 2s infinite bgcolorchange;
+        }
+
+
+        @keyframes bgcolorchange {
+          0% {
+            background-color: transparent;
+            opacity: 25%;
+          }
+
+          50% {
+            background-color: #89e1ff;
+            opacity: 25%;
+
+          100% {
+            background-color: transparent;
+            opacity: 25%;
+          }
+        }
+        /* Chrome, Safari, Opera */
+         @-webkit-keyframes bgcolorchange {
+              0%   {background: transparent; opacity: 25%;}
+              50%  {background: #89e1ff; opacity: 25%;}
+              100% {background: transparent; opacity: 25%;}
+         }
+
+         ul{
+            list-style-type: none;
+         }
+ 
+    </style>
+    <div id="twitch-container">
+        <div id="flashing-subscriber">
+
+        <!--in case we want to bring back the list stuf-->
+
+        <!--        <div id="question" style="margin: 265px 0 0 325px; position: absolute; float: right"> [Question goes here]
+                    <div id="answers">
+                        Type your response in the chat
+                        <ul>
+                            <li id="option-1">A sdsdsd</li>
+                            <li id="option-2">B dsdsdsd</li>
+                            <li id="option-3">C dsdsdsds</li>
+                            <li id="option-4">D fdffdfd</li>
+                        </ul>
+                    </div>
+                </div>
+        </div>-->
+    </div>
+
+</body>
+</html>
