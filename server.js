@@ -1,19 +1,52 @@
 const tmi = require('tmi.js');
 const haikudos = require('haikudos');
-const socket = require('socket.io-client')('wss://pubsub-edge.twitch.tv');
+//const io = require('socket.io-client');
+//const socket = io.connect('wss://pubsub-edge.twitch.tv', 
+//  { secure: true, reconnect: true, rejectUnauthorized: false });
+//const fetch = require('node-fetch');
+const {generateEmotes} = require('./generateEmotes');
 
-socket.on('connect', function(){
-    console.log('* Socket opened');
-});
-socket.on('event', function(data){
-    console.log('* Socket event!');
-});
-socket.on('disconnect', function(){
-    console.log('* Socket closed :(');
-});
+console.log('EMOTES:', generateEmotes(8));
+
+// var ws;
+// ws = new WebSocket('wss://pubsub-edge.twitch.tv');
+
+// ws.onopen = function(event) {
+//     $('.ws-output').append('INFO: Socket Opened\n');
+//     heartbeat();
+//     heartbeatHandle = setInterval(heartbeat, heartbeatInterval);
+// };
+
+// fetch('https://api.twitch.tv/helix/users?login=shroud&client-id=soiv4rk6dw9sr1ih6o77xwu1qcl6kq')
+//     .then(res => res.text())
+//     .then(body => console.log('FETCH:', body));
+
+// socket.on('connect', function(){
+//   try {
+//       console.log('* Socket opened');
+//       //socket.emit('configure', {email:myemail, deviceid:device_id});
+
+//   } catch(e) {
+//     console.log(e);
+//   }
+// });
+
+// socket.on('event', function(data){
+//     console.log('* Socket event!');
+// });
+// socket.on('disconnect', function(){
+//     console.log('* Socket closed :(');
+// });
+// socket.on("error", console.error);
 
 
 /*
+
+//SHROUD's ID:  37402112
+
+curl -H 'Accept: application/vnd.twitchtv.v5+json' \
+-H 'Client-ID: soiv4rk6dw9sr1ih6o77xwu1qcl6kq' \
+-X GET https://api.twitch.tv/kraken/users?login=shroud
 
 
 curl -H 'Authorization: Bearer cfabdegwdoklmawdzdo98xt2fo512y' \
@@ -33,7 +66,8 @@ let opts = {
     password: 'oauth:' + '2w3qicy2x09arj2lmtkwl180y4j8zg'
   },
   channels: [
-    'shroud'
+    'stephaniekdoan'
+    //'shroud'
   ]
 }
 
@@ -93,8 +127,14 @@ client.connect()
 function onMessageHandler (target, context, msg, self) {
   if (self) { return } // Ignore messages from the bot
 
+  //Handle streamer initiated poll
+  if (context.username == 'stephaniekdoan' && msg.substring(0, 5)=='#poll') {
+    console.log('ISSA POLL!!!');
+    //calls function to parse poll
+  }
+
   // This isn't a command since it has no prefix:
-  if (msg.substr(0, 1) !== commandPrefix && msg.includes('subscribe')) {
+  if (msg.substr(0, 1) !== commandPrefix) {
     console.log(`[${target} (${context['message-type']})] ${context.username}: ${msg}`)
     return
   }
