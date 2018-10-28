@@ -1,5 +1,7 @@
 const tmi = require('tmi.js');
 const haikudos = require('haikudos');
+var SerialPort = require('serialport');
+var port = new SerialPort('/dev/cu.usbmodem1441');
 //const io = require('socket.io-client');
 //const socket = io.connect('wss://pubsub-edge.twitch.tv', 
 //  { secure: true, reconnect: true, rejectUnauthorized: false });
